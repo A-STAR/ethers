@@ -1,5 +1,5 @@
 // Import everything
-import { ethers, formatEther, formatUnits, parseEther } from "ethers";
+import { Contract, ethers, formatEther, formatUnits, parseEther } from "ethers";
 
 // Import just a few select items
 import { BrowserProvider, parseUnits } from "ethers";
@@ -36,7 +36,7 @@ const block = await provider.getBlockNumber()
 console.log('block', block);
 
 // Get the current balance of an account (by address or ENS name)
-const balance = await provider.getBalance("ethers.eth")
+let balance = await provider.getBalance("ethers.eth")
 console.log('balance', balance)
 
 // Since the balance is in wei, you may wish to display it
@@ -46,4 +46,34 @@ console.log('ether', eth)
 
 // Get the next nonce required to send a transaction
 const nonce = await provider.getTransactionCount("ethers.eth")
-console.log('nonce', nonce)
+console.log('nonce', nonce, '\n')
+
+
+
+
+// The contract ABI (fragments we care about)
+const abi = [
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+  "function balanceOf(address a) view returns (uint)"
+]
+
+// Create a contract; connected to a Provider, so it may
+// only access read-only methods (like view and pure)
+const contract = new Contract("dai.tokens.ethers.eth", abi, provider)
+
+// The symbol name for the token
+const sym = await contract.symbol()
+console.log('symbol', sym)
+
+// The number of decimals the token uses
+const decimals = await contract.decimals()
+console.log('decimals', decimals)
+
+// Read the token balance for an account
+balance = await contract.balanceOf("ethers.eth")
+console.log('balance', balance)
+
+// Format the balance for humans, such as in a UI
+eth = formatUnits(balance, decimals)
+console.log('ether', eth)
