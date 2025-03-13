@@ -24,4 +24,26 @@ console.log('ether', eth)
 
 // Convert a value in wei to a string in gwei to display in a UI
 eth = formatUnits(feePerGas, "gwei")
-console.log('`feePerGas` in gwei', eth)
+console.log('`feePerGas` in gwei', eth, '\n')
+
+
+
+
+const provider = ethers.getDefaultProvider()
+
+// Look up the current block number (i.e. height)
+const block = await provider.getBlockNumber()
+console.log('block', block);
+
+// Get the current balance of an account (by address or ENS name)
+const balance = await provider.getBalance("ethers.eth")
+console.log('balance', balance)
+
+// Since the balance is in wei, you may wish to display it
+// in ether instead.
+eth = formatEther(balance)
+console.log('ether', eth)
+
+// Get the next nonce required to send a transaction
+const nonce = await provider.getTransactionCount("ethers.eth")
+console.log('nonce', nonce)
