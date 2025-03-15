@@ -52,7 +52,7 @@ console.log('nonce', nonce, '\n')
 
 
 // The contract ABI (fragments we care about)
-const abi = [
+let abi = [
   "function decimals() view returns (uint8)",
   "function symbol() view returns (string)",
   "function balanceOf(address a) view returns (uint)"
@@ -60,7 +60,7 @@ const abi = [
 
 // Create a contract; connected to a Provider, so it may
 // only access read-only methods (like view and pure)
-const contract = new Contract("dai.tokens.ethers.eth", abi, provider)
+let contract = new Contract("dai.tokens.ethers.eth", abi, provider)
 
 // The symbol name for the token
 const sym = await contract.symbol()
@@ -76,4 +76,44 @@ console.log('balance', balance)
 
 // Format the balance for humans, such as in a UI
 eth = formatUnits(balance, decimals)
-console.log('ether', eth)
+console.log('ether', eth, '\n')
+
+
+
+
+abi = [
+  "event Transfer(address indexed from, address indexed to, uint amount)"
+]
+
+// Create a contract; connected to a `Provider`, so it may
+// only access read-only methods (like view and pure)
+contract = new Contract("dai.tokens.ethers.eth", abi, provider)
+
+// Begin listening for any `Transfer` event
+contract.on("Transfer", (from, to, _amount, event) => {
+  const amount = formatEther(_amount)
+  console.log(`${ from } => ${ to }: ${ amount }`);
+
+  // The `event.log` has the entire EventLog
+
+  // Optionally, stop listening
+  event.removeListener();
+});
+
+// Same as above
+contract.on(contract.filters.Transfer, (from, to, amount, event) => {
+  // See above
+})
+
+// Listen for any `Transfer` to "ethers.eth"
+const filter = contract.filters.Transfer("ethers.eth")
+contract.on(filter, (from, to, amount, event) => {
+  // `to` will always be equal to the address of "ethers.eth"
+});
+
+// Listen for any event, whether it is present in the ABI
+// or not. Since unknown events can be picked up, the
+// parameters are not destructed.
+contract.on("*", (event) => {
+  // The `event.log` has the entire `EventLog`
+});
