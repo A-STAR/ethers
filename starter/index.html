@@ -7,7 +7,7 @@
   </head>
   <body>
     <script type="module">
-      import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.min.js";
+      import { ethers, parseEther } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.min.js";
 
       let provider;
       let signer = null;
@@ -35,6 +35,19 @@
         // operations, which will be performed by the private key
         // that MetaMask manages for the user.
         signer = await provider.getSigner();
+
+
+
+        
+        // When sending a transaction, the value is in wei, so `parseEther`
+        // converts ether to wei.
+        tx = await signer.sendTransaction({
+          to: "ethers.eth",
+          value: parseEther("1.0")
+        });
+
+        // Often you may wish to wait until the transaction is mined
+        receipt = await tx.wait();
       }
     </script>
   </body>
