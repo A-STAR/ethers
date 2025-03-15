@@ -106,7 +106,7 @@ contract.on(contract.filters.Transfer, (from, to, amount, event) => {
 })
 
 // Listen for any `Transfer` to "ethers.eth"
-const filter = contract.filters.Transfer("ethers.eth")
+let filter = contract.filters.Transfer("ethers.eth")
 contract.on(filter, (from, to, amount, event) => {
   // `to` will always be equal to the address of "ethers.eth"
 });
@@ -117,3 +117,31 @@ contract.on(filter, (from, to, amount, event) => {
 contract.on("*", (event) => {
   // The `event.log` has the entire `EventLog`
 });
+
+
+
+
+abi = [
+  "event Transfer(address indexed from, address indexed to, uint amount)"
+]
+
+// Create a contract; connected to a `Provider`, so it may
+// only access read-only methods (like view and pure)
+contract = new Contract("dai.tokens.ethers.eth", abi, provider)
+
+// Query the last 100 blocks for any transfer
+filter = contract.filters.Transfer()
+let events = await contract.queryFilter(filter, -100)
+
+// The events are a normal `Array`
+console.log('length', events.length)
+
+// The first matching event
+console.log('first matching event', events[0], '\n')
+
+// Query all time for any transfer to "ethers.eth"
+filter = contract.filters.Transfer("ethers.eth")
+events = await contract.queryFilter(filter)
+
+// The first matching event
+console.log('first matching event', events[0])
