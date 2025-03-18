@@ -7,7 +7,7 @@
   </head>
   <body>
     <script type="module">
-      import { ethers, parseEther } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.min.js";
+      import { Contract, ethers, parseEther } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.min.js";
 
       let provider;
       let signer = null;
@@ -38,7 +38,7 @@
 
 
 
-        
+
         // When sending a transaction, the value is in wei, so `parseEther`
         // converts ether to wei.
         tx = await signer.sendTransaction({
@@ -48,6 +48,55 @@
 
         // Often you may wish to wait until the transaction is mined
         receipt = await tx.wait();
+
+
+
+
+        let abi = [
+          "function transfer(address to, uint amount)"
+        ]
+
+        // Connected to a `Signer`; can make state changing transactions,
+        // which will cost the account ether
+        let contract = new Contract("dai.tokens.ethers.eth", abi, signer)
+
+        // Send 1 DAI
+        let amount = parseUnits("1.0", 18);
+        console.log('amount', amount)
+
+        // Send the transaction
+        const tx = await contract.transfer("ethers.eth", amount)
+        console.log('transaction', tx)
+
+        // Currently the transaction has been sent to the mempool,
+        // but has not yet been included. So, we...
+
+        // ...wait for the transaction to be included.
+        await tx.wait()
+
+
+
+
+        abi = [
+          "function transfer(address to, uint amount) returns (bool)"
+        ]
+
+        // Connected to a `Provider` since we only require read access
+        contract = new Contract("dai.tokens.ethers.eth", abi, provider)
+
+        amount = parseUnits("1.0", 18)
+        console.log('amount', amount)
+
+        // There are many limitations to using a static call, but can
+        // often be useful to preflight a transaction.
+        let result = await contract.transfer.staticCall("ethers.eth", amount)
+        console.log('result', result)
+
+        // We can also simulate the transaction as another account
+        other = new VoidSigner("0x643aA0A61eADCC9Cc202D1915D942d35D005400C")
+        contractAsOther = contract.connect(other.connect(provider))
+        result = await contractAsOther.transfer.staticCall("ethers.eth", amount)
+        console.log('result', result)
       }
     </script>
   </body>
