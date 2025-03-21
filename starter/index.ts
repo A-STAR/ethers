@@ -1,5 +1,5 @@
 // Import everything
-import { Contract, ethers, formatEther, formatUnits, parseEther } from "ethers";
+import { Contract, Wallet, ethers, formatEther, formatUnits, id, parseEther, verifyMessage } from "ethers";
 
 // Import just a few select items
 import { BrowserProvider, parseUnits } from "ethers";
@@ -144,4 +144,20 @@ filter = contract.filters.Transfer("ethers.eth")
 events = await contract.queryFilter(filter)
 
 // The first matching event
-console.log('first matching event', events[0])
+console.log('first matching event', events[0], '\n')
+
+
+
+
+
+// Our signer; Signing messages does not require a `Provider`
+const signer = new Wallet(id("test"))
+
+const message = "sign into ethers.org?"
+
+// Signing the message
+const sig = await signer.signMessage(message);
+
+// Validating a message; notice the address matches the signer
+const addr = verifyMessage(message, sig)
+console.log('signer matched address', addr)
